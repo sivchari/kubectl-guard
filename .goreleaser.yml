@@ -59,7 +59,7 @@ krews:
     repository:
       owner: sivchari
       name: krew-index
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: https://github.com/sivchari/kubectl-guard
     description: "Protect Kubernetes contexts from accidental destructive operations"
     short_description: "Context protection plugin"
