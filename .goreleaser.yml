@@ -1,0 +1,72 @@
+version: 2
+
+project_name: kubectl-guard
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: kubectl-guard
+    main: ./cmd/kubectl-guard
+    binary: kubectl-guard
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+
+archives:
+  - id: kubectl-guard
+    formats: ['tar.gz']
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: ['zip']
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+
+changelog:
+  sort: asc
+
+release:
+  draft: true
+
+brews:
+  - name: kubectl-guard
+    repository:
+      owner: sivchari
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/sivchari/kubectl-guard
+    description: "Kubernetes context protection kubectl plugin"
+    license: MIT
+    install: |
+      bin.install "kubectl-guard"
+
+krews:
+  - name: guard
+    repository:
+      owner: sivchari
+      name: krew-index
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    homepage: https://github.com/sivchari/kubectl-guard
+    description: "Protect Kubernetes contexts from accidental destructive operations"
+    short_description: "Context protection plugin"
+    caveats: |
+      This plugin protects specified contexts from destructive kubectl commands.
+
+      Quick start:
+        kubectl guard guard prod-cluster
+        kubectl guard list
+        kubectl guard exec -- delete pod nginx
